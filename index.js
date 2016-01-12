@@ -9,10 +9,9 @@ module.exports = {
   name: 'ember-feature-flag-solution',
   included: function (app) {
 
-    app.options.featureFlag = app.options.featureFlag || {};
-    app.options.featureFlag.features = app.options.featureFlag.features || {};
-    app.options.featureFlag.development = app.options.featureFlag.development || false;
-    app.options.featureFlag.production = app.options.featureFlag.production || true;
+    this.app = app;
+    this._super.included.apply(this, arguments);
+    this.setupPreprocessorRegistry('parent', app.registry);
 
     // Add babel plugin to filter out `featureFlag` function in JS files
     var babelDefeatureifyInstance = BabelDefeatureify({
@@ -36,11 +35,20 @@ module.exports = {
         features: app.options.featureFlag.features
       })
     });
+  },
+  setupPreprocessorRegistry(type, registry) {
+    if (registry.app.options) {
+      // Setup Default Values
+      registry.app.options.featureFlag = registry.app.options.featureFlag || {};
+      registry.app.options.featureFlag.features = registry.app.options.featureFlag.features || {};
+      registry.app.options.featureFlag.development = registry.app.options.featureFlag.development || false;
+      registry.app.options.featureFlag.production = registry.app.options.featureFlag.production || true;
 
-    // Add css preprocessor to output feature flag constants
-    app.registry.add('css', new StyleDefeatureify({
-      features: app.options.featureFlag.features
-    }));
+      // Add css plugin to provide feature flags to SCSS
+      registry.add('css', new StyleDefeatureify({
+        features: registry.app.options.featureFlag.features
+      }));
+    }
   },
   isDevelopingAddon: function () {
     return true;
