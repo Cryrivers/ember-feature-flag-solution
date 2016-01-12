@@ -41,6 +41,7 @@
     "ember-addon"
   ],
   "dependencies": {
+    "babel-plugin-feature-flags": "^0.2.0",
     "ember-cli-babel": "^5.1.5"
   },
   "ember-addon": {
