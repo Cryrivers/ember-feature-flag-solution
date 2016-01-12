@@ -1,5 +1,6 @@
 /* jshint node: true */
 'use strict';
+var BabelFeatureFlag = require('./babel-defeatureify');
 function defeatureifyTemplate(element) {
   if (element.type === 'BlockStatement') {
     if (element.path.original === 'if') {
@@ -19,6 +20,17 @@ function defeatureifyTemplate(element) {
 module.exports = {
   name: 'ember-feature-flag-solution',
   included: function () {
+    this.app.babel = {
+      plugins: [
+        BabelFeatureFlag({
+          import: {
+            module: 'ember-feature-flag-solution/helpers/feature-flag',
+            name: 'featureFlag'
+          },
+          features: this.featureFlags()
+        })
+      ]
+    };
     this.app.registry.add('htmlbars-ast-plugin', {
       name: 'feature-flag-template-defeatureify',
       plugin: function () {
