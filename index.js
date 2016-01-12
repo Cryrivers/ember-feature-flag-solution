@@ -20,7 +20,7 @@ module.exports = {
         module: 'ember-feature-flag-solution/helpers/feature-flag',
         name: 'featureFlag'
       },
-      features: app.options.featureFlag
+      features: app.options.featureFlag.features
     });
 
     if (app.options.babel.plugins) {
@@ -33,7 +33,7 @@ module.exports = {
     app.registry.add('htmlbars-ast-plugin', {
       name: 'feature-flag-template-defeatureify',
       plugin: TemplateDefeatureify({
-        features: app.options.featureFlag
+        features: app.options.featureFlag.features
       })
     });
 
