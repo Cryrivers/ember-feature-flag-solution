@@ -38,7 +38,9 @@ module.exports = {
     });
 
     // Add css preprocessor to output feature flag constants
-    // app.registry.add('css', )
+    app.registry.add('css', new StyleDefeatureify({
+      features: app.options.featureFlag.features
+    }));
   },
   isDevelopingAddon: function () {
     return true;
