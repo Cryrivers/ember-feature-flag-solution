@@ -8,8 +8,10 @@ var StyleDefeatureify = require('./lib/style-defeatureify');
 
 module.exports = {
   name: 'ember-feature-flag-solution',
-  included: function (app) {
-
+  included: function (app, parentAddon) {
+    //var target = (parentAddon || app);
+    //var config = this.project.config(target.env);
+    //console.log(config);
     this.app = app;
     this._super.included.apply(this, arguments);
     this.setupPreprocessorRegistry('parent', app.registry);
@@ -38,6 +40,7 @@ module.exports = {
     });
   },
   setupPreprocessorRegistry(type, registry) {
+    console.log(registry.app.project.config());
     var app = registry.app.options;
     if (app) {
       // Setup Default Values
