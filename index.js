@@ -1,6 +1,7 @@
 /*jshint node:true*/
 /* global require, module */
 'use strict';
+var Funnel = require('broccoli-funnel');
 var BabelDefeatureify = require('./lib/babel-defeatureify');
 var TemplateDefeatureify = require('./lib/template-defeatureify');
 var StyleDefeatureify = require('./lib/style-defeatureify');
@@ -37,17 +38,37 @@ module.exports = {
     });
   },
   setupPreprocessorRegistry(type, registry) {
-    if (registry.app.options) {
+    var app = registry.app.options;
+    if (app) {
       // Setup Default Values
-      registry.app.options.featureFlag = registry.app.options.featureFlag || {};
-      registry.app.options.featureFlag.features = registry.app.options.featureFlag.features || {};
-      registry.app.options.featureFlag.development = registry.app.options.featureFlag.development || false;
-      registry.app.options.featureFlag.production = registry.app.options.featureFlag.production || true;
+      app.featureFlag = app.featureFlag || {};
+      app.featureFlag.features = app.featureFlag.features || {};
+      app.featureFlag.includeFileByFlag = app.featureFlag.includeFileByFlag || {};
+      app.featureFlag.development = app.featureFlag.development || false;
+      app.featureFlag.production = app.featureFlag.production || true;
 
       // Add css plugin to provide feature flags to SCSS
       registry.add('css', new StyleDefeatureify({
         features: registry.app.options.featureFlag.features
       }));
+    }
+  },
+  postprocessTree: function(type, tree) {
+    if (type !== 'all') {
+      return tree;
+    } else {
+      var features = this.app.options.featureFlag.features;
+      var includeFileByFlag = this.app.options.featureFlag.includeFileByFlag;
+      var excludes = [];
+      Object.keys(features).forEach(function(flag) {
+        if (!features[flag] && includeFileByFlag[flag]) {
+          excludes = excludes.concat(includeFileByFlag[flag]);
+        }
+      });
+      return new Funnel(tree, {
+        exclude: excludes,
+        description: 'Funnel: Conditionally Filtered Files by Feature Flags'
+      });
     }
   },
   isDevelopingAddon: function () {
