@@ -8,11 +8,8 @@ var StyleDefeatureify = require('./lib/style-defeatureify');
 
 module.exports = {
   name: 'ember-feature-flag-solution',
-  included: function (app, parentAddon) {
-    //var target = (parentAddon || app);
-    //var config = this.project.config(target.env);
-    //console.log(config);
-    this.app = app;
+  included: function(app, parentAddon) {
+
     this._super.included.apply(this, arguments);
     this.setupPreprocessorRegistry('parent', app.registry);
 
@@ -22,7 +19,8 @@ module.exports = {
         module: 'ember-feature-flag-solution/helpers/feature-flag',
         name: 'featureFlag'
       },
-      features: app.options.featureFlag.features
+      features: this.featureFlag.features,
+      verbose: this.featureFlag.verbose
     });
 
     if (app.options.babel.plugins) {
@@ -35,24 +33,23 @@ module.exports = {
     app.registry.add('htmlbars-ast-plugin', {
       name: 'feature-flag-template-defeatureify',
       plugin: TemplateDefeatureify({
-        features: app.options.featureFlag.features
+        features: this.featureFlag.features,
+        verbose: this.featureFlag.verbose
       })
     });
   },
   setupPreprocessorRegistry(type, registry) {
-    console.log(registry.app.project.config());
-    var app = registry.app.options;
-    if (app) {
-      // Setup Default Values
-      app.featureFlag = app.featureFlag || {};
-      app.featureFlag.features = app.featureFlag.features || {};
-      app.featureFlag.includeFileByFlag = app.featureFlag.includeFileByFlag || {};
-      app.featureFlag.development = app.featureFlag.development || false;
-      app.featureFlag.production = app.featureFlag.production || true;
-
+    if (registry.app.options) {
+      var appEnvironmentOptions = registry.app.project.config(registry.app.env);
+      this.featureFlag = appEnvironmentOptions.featureFlag || {};
+      this.featureFlag.features = this.featureFlag.features || {};
+      this.featureFlag.includeFileByFlag = this.featureFlag.includeFileByFlag || {};
+      this.featureFlag.verbose = this.featureFlag.verbose || true;
+      this.featureFlag.development = this.featureFlag.development || false;
+      this.featureFlag.production = this.featureFlag.production || true;
       // Add css plugin to provide feature flags to SCSS
       registry.add('css', new StyleDefeatureify({
-        features: registry.app.options.featureFlag.features
+        features: this.featureFlag.features
       }));
     }
   },
@@ -60,8 +57,8 @@ module.exports = {
     if (type !== 'all') {
       return tree;
     } else {
-      var features = this.app.options.featureFlag.features;
-      var includeFileByFlag = this.app.options.featureFlag.includeFileByFlag;
+      var features = this.featureFlag.features;
+      var includeFileByFlag = this.featureFlag.includeFileByFlag;
       var excludes = [];
       Object.keys(features).forEach(function(flag) {
         if (!features[flag] && includeFileByFlag[flag]) {
@@ -74,7 +71,7 @@ module.exports = {
       });
     }
   },
-  isDevelopingAddon: function () {
+  isDevelopingAddon: function() {
     return true;
   }
 };
