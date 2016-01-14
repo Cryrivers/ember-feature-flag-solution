@@ -54,7 +54,7 @@ module.exports = {
     }
   },
   postprocessTree: function(type, tree) {
-    if (type !== 'all') {
+    if (type !== 'js') {
       return tree;
     } else {
       var features = this.featureFlag.features;
