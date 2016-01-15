@@ -17,7 +17,7 @@ module.exports = {
       // Add babel plugin to filter out `featureFlag` function in JS files
       var babelDefeatureifyInstance = BabelDefeatureify({
         import: {
-          module: 'ember-feature-flag-solution/helpers/feature-flag',
+          module: app.project.pkg.name + '/helpers/feature-flag',
           name: 'featureFlag'
         },
         features: this.featureFlag.features,
@@ -48,20 +48,14 @@ module.exports = {
       this.featureFlag = appEnvironmentOptions.featureFlag || {};
       this.featureFlag.features = this.featureFlag.features || {};
       this.featureFlag.includeFileByFlag = this.featureFlag.includeFileByFlag || {};
-      this.featureFlag.verbose = this.featureFlag.verbose || true;
-      this.featureFlag.strip = this.featureFlag.strip || true;
-      if (this.featureFlag.strip) {
-        // Add css plugin to provide feature flags to SCSS
-        registry.add('css', new StyleDefeatureify({
-          features: this.featureFlag.features
-        }));
-      }
+      // Add css plugin to provide feature flags to SCSS
+      registry.add('css', new StyleDefeatureify({
+        features: this.featureFlag.features
+      }));
     }
   },
   postprocessTree: function(type, tree) {
-    if (type !== 'js') {
-      return tree;
-    } else {
+    if (type === 'js') {
       if (this.featureFlag.strip) {
         var features = this.featureFlag.features;
         var includeFileByFlag = this.featureFlag.includeFileByFlag;
@@ -78,9 +72,18 @@ module.exports = {
       } else {
         return tree;
       }
+    } else if (type === 'css') {
+      return new Funnel(tree, {
+        exclude: [
+          /feature-flags\.scss/
+        ],
+        description: 'Funnel: Remove feature-flag.scss from dist'
+      });
+    } else {
+      return tree;
     }
   },
   isDevelopingAddon: function() {
-    return true;
+    return false;
   }
 };
