@@ -3,6 +3,7 @@
 'use strict';
 var Funnel = require('broccoli-funnel');
 var BabelDefeatureify = require('./lib/babel-defeatureify');
+var BabelRemoveImports = require('./lib/babel-remove-imports');
 var TemplateDefeatureify = require('./lib/template-defeatureify');
 var StyleDefeatureify = require('./lib/style-defeatureify');
 
@@ -24,10 +25,17 @@ module.exports = {
         verbose: this.featureFlag.verbose
       });
 
+      var babelRemoveImportsInstance = BabelRemoveImports({
+        import: {
+          module: app.project.pkg.name + '/helpers/feature-flag'
+        }
+      });
+
       if (app.options.babel.plugins) {
         app.options.babel.plugins.push(babelDefeatureifyInstance);
+        app.options.babel.plugins.push(babelRemoveImportsInstance);
       } else {
-        app.options.babel.plugins = [babelDefeatureifyInstance];
+        app.options.babel.plugins = [babelDefeatureifyInstance, babelRemoveImportsInstance];
       }
 
       // Add htmlbars-ast-plugin to filter out `feature-flag` helpers in templates
@@ -65,6 +73,8 @@ module.exports = {
             excludes = excludes.concat(includeFileByFlag[flag]);
           }
         });
+        // Exclude featureFlag helpers as it is redundant in stripped build
+        excludes.push(/helpers\/feature-flag\.js/);
         return new Funnel(tree, {
           exclude: excludes,
           description: 'Funnel: Conditionally Filtered Files by Feature Flags'
