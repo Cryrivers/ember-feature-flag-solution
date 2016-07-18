@@ -51,6 +51,7 @@ module.exports = {
   },
   setupPreprocessorRegistry(type, registry) {
     if (registry.app.options) {
+
       var appEnvironmentOptions = registry.app.project.config(registry.app.env);
       this.featureFlag = appEnvironmentOptions.featureFlag || {};
       this.featureFlag.features = this.featureFlag.features || {};
