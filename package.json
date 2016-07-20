@@ -1,7 +1,7 @@
 {
   "name": "ember-feature-flag-solution",
-  "version": "0.0.14",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "0.0.15",
+  "description": "Real 'Stability without Stagnation' Behind Feature Flags",
   "directories": {
     "doc": "doc",
     "test": "tests"

@@ -9,7 +9,16 @@ var StyleDefeatureify = require('./lib/style-defeatureify');
 
 module.exports = {
   name: 'ember-feature-flag-solution',
-  included: function(app, parentAddon) {
+  config: function() {
+    if (this.featureFlag) {
+      if (!this.featureFlag.strip) {
+        return {
+          featureFlag: this.featureFlag
+        };
+      }
+    }
+  },
+  included: function(app) {
 
     this._super.included.apply(this, arguments);
     this.setupPreprocessorRegistry('parent', app.registry);
@@ -49,11 +58,9 @@ module.exports = {
     }
 
   },
-  setupPreprocessorRegistry(type, registry) {
+  setupPreprocessorRegistry: function(type, registry) {
     if (registry.app.options) {
-
-      var appEnvironmentOptions = registry.app.project.config(registry.app.env);
-      this.featureFlag = appEnvironmentOptions.featureFlag || {};
+      this.featureFlag = registry.app.options.featureFlag || {};
       this.featureFlag.features = this.featureFlag.features || {};
       this.featureFlag.includeFileByFlag = this.featureFlag.includeFileByFlag || {};
       // Add css plugin to provide feature flags to SCSS
