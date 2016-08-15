@@ -40,6 +40,14 @@ module.exports = {
         }
       });
 
+      babelDefeatureifyInstance.baseDir = function() {
+        return __dirname;
+      };
+
+      babelRemoveImportsInstance.baseDir = function() {
+        return __dirname;
+      };
+
       if (app.options.babel.plugins) {
         app.options.babel.plugins.push(babelDefeatureifyInstance);
         app.options.babel.plugins.push(babelRemoveImportsInstance);
@@ -53,7 +61,10 @@ module.exports = {
         plugin: TemplateDefeatureify({
           features: this.featureFlag.features,
           verbose: this.featureFlag.verbose
-        })
+        }),
+        baseDir: function() {
+          return __dirname;
+        }
       });
     }
 
