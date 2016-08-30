@@ -74,6 +74,7 @@ module.exports = {
       this.featureFlag = registry.app.options.featureFlag || {};
       this.featureFlag.features = this.featureFlag.features || {};
       this.featureFlag.includeFileByFlag = this.featureFlag.includeFileByFlag || {};
+      this.featureFlag.excludeFileByFlag = this.featureFlag.excludeFileByFlag || {};
       // Add css plugin to provide feature flags to SCSS
       registry.add('css', new StyleDefeatureify({
         features: this.featureFlag.features
@@ -85,10 +86,13 @@ module.exports = {
       if (this.featureFlag.strip) {
         var features = this.featureFlag.features;
         var includeFileByFlag = this.featureFlag.includeFileByFlag;
+        var excludeFileByFlag = this.featureFlag.excludeFileByFlag;
         var excludes = [];
         Object.keys(features).forEach(function(flag) {
           if (!features[flag] && includeFileByFlag[flag]) {
             excludes = excludes.concat(includeFileByFlag[flag]);
+          } else if (features[flag] && excludeFileByFlag[flag]) {
+            excludes = excludes.concat(excludeFileByFlag[flag]);
           }
         });
         // Exclude featureFlag helpers as it is redundant in stripped build

@@ -1,6 +1,6 @@
 {
   "name": "ember-feature-flag-solution",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Real 'Stability without Stagnation' Behind Feature Flags",
   "directories": {
     "doc": "doc",
