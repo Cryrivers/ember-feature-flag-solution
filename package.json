@@ -1,6 +1,6 @@
 {
   "name": "ember-feature-flag-solution",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Real 'Stability without Stagnation' Behind Feature Flags",
   "directories": {
     "doc": "doc",
@@ -50,7 +50,8 @@
       "ember-cli-sass",
       "ember-cli-less",
       "ember-cli-stylus",
-      "ember-cli-css-preprocess"
+      "ember-cli-css-preprocess",
+      "ember-cli-sri"
     ],
     "configPath": "tests/dummy/config"
   }
