@@ -56,6 +56,10 @@ module.exports = {
       babelRemoveImportsInstance.baseDir = function() {
         return __dirname;
       };
+      
+      if (!app.options.babel) {
+        app.options.babel = {};
+      }
 
       if (app.options.babel.plugins) {
         app.options.babel.plugins.push(babelDefeatureifyInstance);
@@ -78,7 +82,7 @@ module.exports = {
     }
 
   },
-  _hasFeatureFlagConfig(registry) {
+  _hasFeatureFlagConfig: function(registry) {
     return registry.app.options && registry.app.featureFlag;
   },
   setupPreprocessorRegistry: function(type, registry) {
