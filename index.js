@@ -21,13 +21,22 @@ module.exports = {
   included: function(app) {
 
     this._super.included.apply(this, arguments);
-    this.setupPreprocessorRegistry('parent', app.registry);
+    
+    // if no feature flag config, look for its parent
+    var _app = app;
+    while (_app.app && !this._hasFeatureFlagConfig(_app.registry)) {
+      _app = _app.app;
+    }
+    this.setupPreprocessorRegistry('parent', _app.registry);
+    
+    // `packageName` could be either app package name or addon/engine package name
+    var packageName = app.project.pkg.name || app.options.name;
 
     if (this.featureFlag.strip) {
       // Add babel plugin to filter out `featureFlag` function in JS files
       var babelDefeatureifyInstance = BabelDefeatureify({
         import: {
-          module: app.project.pkg.name + '/helpers/feature-flag',
+          module: packageName + '/helpers/feature-flag',
           name: 'featureFlag'
         },
         features: this.featureFlag.features,
@@ -36,7 +45,7 @@ module.exports = {
 
       var babelRemoveImportsInstance = BabelRemoveImports({
         import: {
-          module: app.project.pkg.name + '/helpers/feature-flag'
+          module: packageName + '/helpers/feature-flag'
         }
       });
 
@@ -47,6 +56,10 @@ module.exports = {
       babelRemoveImportsInstance.baseDir = function() {
         return __dirname;
       };
+      
+      if (!app.options.babel) {
+        app.options.babel = {};
+      }
 
       if (app.options.babel.plugins) {
         app.options.babel.plugins.push(babelDefeatureifyInstance);
@@ -68,6 +81,9 @@ module.exports = {
       });
     }
 
+  },
+  _hasFeatureFlagConfig: function(registry) {
+    return registry.app.options && registry.app.featureFlag;
   },
   setupPreprocessorRegistry: function(type, registry) {
     if (registry.app.options) {
