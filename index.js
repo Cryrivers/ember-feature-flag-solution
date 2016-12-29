@@ -21,14 +21,14 @@ module.exports = {
   included: function(app) {
 
     this._super.included.apply(this, arguments);
-    
+
     // if no feature flag config, look for its parent
     var _app = app;
     while (_app.app && !this._hasFeatureFlagConfig(_app.registry)) {
       _app = _app.app;
     }
     this.setupPreprocessorRegistry('parent', _app.registry);
-    
+
     // `packageName` could be either app package name or addon/engine package name
     var packageName = app.project.pkg.name || app.options.name;
 
@@ -56,7 +56,7 @@ module.exports = {
       babelRemoveImportsInstance.baseDir = function() {
         return __dirname;
       };
-      
+
       if (!app.options.babel) {
         app.options.babel = {};
       }
@@ -97,7 +97,7 @@ module.exports = {
       }));
     }
   },
-  postprocessTree: function(type, tree) {
+  preprocessTree: function(type, tree) {
     if (type === 'js') {
       if (this.featureFlag.strip) {
         var features = this.featureFlag.features;
@@ -120,7 +120,12 @@ module.exports = {
       } else {
         return tree;
       }
-    } else if (type === 'css') {
+    } else {
+      return tree;
+    }
+  },
+  postprocessTree: function(type, tree) {
+    if (type === 'css') {
       return new Funnel(tree, {
         exclude: [
           /feature-flags\.scss/
